@@ -133,10 +133,13 @@ class OpenSubtitles(SubtitleDatabase.SubtitleDB):
             log.debug(search['query'])
             
         #Login
+        login = ""
+        password = ""
+        userAgent = "periscope"
         self.server = xmlrpclib.Server(self.server_url)
         socket.setdefaulttimeout(10)
         try:
-            log_result = self.server.LogIn("","","eng","periscope")
+            log_result = self.server.LogIn(login,password,"eng", userAgent)
             log.debug(log_result)
             token = log_result["token"]
         except Exception:

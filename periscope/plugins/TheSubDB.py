@@ -45,7 +45,7 @@ class TheSubDB(SubtitleDatabase.SubtitleDB):
     user_agent = "SubDB/1.0 (periscope/0.1; http://code.google.com/p/periscope)"
 
     def __init__(self, config, cache_folder_path):
-        super(TheSubDB, self).__init__(SS_LANGUAGES)
+        super(TheSubDB, self).__init__(SS_LANGUAGES,config=config)
         self.base_url = 'http://api.thesubdb.com/?{0}'
             
     def process(self, filepath, langs):

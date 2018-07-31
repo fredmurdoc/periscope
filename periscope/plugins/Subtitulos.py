@@ -41,7 +41,7 @@ class Subtitulos(SubtitleDatabase.SubtitleDB):
     site_name = "Subtitulos"
 
     def __init__(self, config, cache_folder_path):
-        super(Subtitulos, self).__init__(langs=None,revertlangs=LANGUAGES)
+        super(Subtitulos, self).__init__(langs=None,config=config,revertlangs=LANGUAGES)
         #http://www.subtitulos.es/dexter/4x01
         self.host = "http://www.subtitulos.es"
         self.release_pattern = re.compile("Versi&oacute;n (.+) ([0-9]+).([0-9])+ megabytes")

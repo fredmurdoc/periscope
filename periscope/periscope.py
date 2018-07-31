@@ -60,6 +60,7 @@ class Periscope:
                 configfile.close()
         else:
             #Load it
+            log.info("Loading config file %s" % (self.config_file))
             self.config.read(self.config_file)
 
         self.pluginNames = self.get_preferedPlugins()

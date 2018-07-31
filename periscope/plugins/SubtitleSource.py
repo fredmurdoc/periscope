@@ -42,7 +42,7 @@ class SubtitleSource(SubtitleDatabase.SubtitleDB):
     site_name = "SubtitleSource"
 
     def __init__(self, config, cache_folder_path):
-        super(SubtitleSource, self).__init__(SS_LANGUAGES)
+        super(SubtitleSource, self).__init__(SS_LANGUAGES,config=config)
         key = config.get("SubtitleSource", "key") # You need to ask for it
         if not key:
             log.error("No key in the config file for SubtitleSource")

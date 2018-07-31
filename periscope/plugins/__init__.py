@@ -19,7 +19,7 @@
 
 from OpenSubtitles import OpenSubtitles
 from Subtitulos import Subtitulos
-from Podnapisi import Podnapisi
+from Podnapisi2 import Podnapisi
 from TheSubDB import TheSubDB
 from SubsWiki import SubsWiki
 from LegendasTV import LegendasTV
@@ -36,3 +36,7 @@ from SubDivX import SubDivX
 
 # API not working
 #from Podnapisi2 import Podnapisi
+
+
+
+

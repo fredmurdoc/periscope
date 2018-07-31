@@ -82,10 +82,10 @@ class OpenSubtitles(SubtitleDatabase.SubtitleDB):
     site_name = "OpenSubtitles"
     
     def __init__(self, config, cache_folder_path):
-        super(OpenSubtitles, self).__init__(OS_LANGS)
+        super(OpenSubtitles, self).__init__(OS_LANGS,config=config)
         self.server_url = 'http://api.opensubtitles.org/xml-rpc'
         self.revertlangs = dict(map(lambda item: (item[1],item[0]), self.langs.items()))
-
+        
     def process(self, filepath, langs):
         ''' main method to call on the plugin, pass the filename and the wished 
         languages and it will query OpenSubtitles.org '''
@@ -133,16 +133,17 @@ class OpenSubtitles(SubtitleDatabase.SubtitleDB):
             log.debug(search['query'])
             
         #Login
-        login = ""
-        password = ""
-        userAgent = "periscope"
+        login = self.pluginConfig.get("username")
+        password = self.pluginConfig.get("password")
+        userAgent = self.pluginConfig.get("useragent")
+
         self.server = xmlrpclib.Server(self.server_url)
         socket.setdefaulttimeout(10)
         try:
             log_result = self.server.LogIn(login,password,"eng", userAgent)
             log.debug(log_result)
             token = log_result["token"]
-        except Exception:
+        except Exception as e:
             log.error("Open subtitles could not be contacted for login")
             token = None
             socket.setdefaulttimeout(None)

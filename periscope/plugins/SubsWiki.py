@@ -39,7 +39,7 @@ class SubsWiki(SubtitleDatabase.SubtitleDB):
     site_name = "SubsWiki"
 
     def __init__(self, config, config_folder_path):
-        super(SubsWiki, self).__init__(langs=None,revertlangs=LANGUAGES)
+        super(SubsWiki, self).__init__(langs=None,config=config,revertlangs=LANGUAGES)
         #http://www.subswiki.com/serie/Dexter/4/1/
         self.host = "http://www.subswiki.com"
         self.release_pattern = re.compile("\nVersion (.+), ([0-9]+).([0-9])+ MBs")

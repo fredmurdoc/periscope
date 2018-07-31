@@ -21,14 +21,15 @@ import os, shutil, urllib2, sys, logging, traceback, zipfile
 import struct
 import socket # For timeout purposes
 import re
-
+import ConfigParser
+from ConfigParser import NoSectionError 
 log = logging.getLogger(__name__)
 
 USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3)'
 
 class SubtitleDB(object):
     ''' Base (kind of abstract) class that represent a SubtitleDB, usually a website. Should be rewritten using abc module in Python 2.6/3K'''
-    def __init__(self, langs, revertlangs = None):
+    def __init__(self, langs, config, revertlangs = None):
         if langs:
             self.langs = langs
             self.revertlangs = dict(map(lambda item: (item[1],item[0]), self.langs.items()))
@@ -39,6 +40,14 @@ class SubtitleDB(object):
         self.tvshowRegex2 = re.compile('(?P<show>.*).(?P<season>[0-9]{1,2})x(?P<episode>[0-9]{1,2}).(?P<teams>.*)', re.IGNORECASE)
         self.movieRegex = re.compile('(?P<movie>.*)[\.|\[|\(| ]{1}(?P<year>(?:(?:19|20)[0-9]{2}))(?P<teams>.*)', re.IGNORECASE)
 
+        baseClassName = type(self).__name__
+        try:
+            self.pluginConfig = dict(config.items(baseClassName)) 
+            log.info("load config for plugin %s " %  (baseClassName))
+            
+        except NoSectionError:
+            self.pluginConfig = dict()
+        
     def searchInThread(self, queue, filename, langs):
         ''' search subtitles with the given filename for the given languages'''
         try:

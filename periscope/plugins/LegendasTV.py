@@ -48,7 +48,7 @@ class LegendasTV(SubtitleDatabase.SubtitleDB):
     user_agent = "LegendasTV/1.0 (periscope/0.1; http://code.google.com/p/periscope)"
 
     def __init__(self, config, cache_folder_path ):
-        super(LegendasTV, self).__init__(None)
+        super(LegendasTV, self).__init__(None,config=config)
         self.tvshowRegex = re.compile('(?P<show>.*)S(?P<season>[0-9]{2})E(?P<episode>[0-9]{2}).(?P<teams>.*)', re.IGNORECASE)
         self.tvshowRegex2 = re.compile('(?P<show>.*).(?P<season>[0-9]{1,2})x(?P<episode>[0-9]{1,2}).(?P<teams>.*)', re.IGNORECASE)
         self.movieRegex = re.compile('(?P<movie>.*)[\_\.|\[|\(| ]{1}(?P<year>(?:(?:19|20)[0-9]{2}))(?P<teams>.*)', re.IGNORECASE)

@@ -254,7 +254,7 @@ class TvSubtitles(SubtitleDatabase.SubtitleDB):
 	URL_SEASON_PATTERN = "http://www.tvsubtitles.net/tvshow-%s-%d.html"
 
 	def __init__(self):
-		super(TvSubtitles, self).__init__({"en":'en', "fr":'fr'})## TODO ??
+		super(TvSubtitles, self).__init__({"en":'en', "fr":'fr'},config=config)## TODO ??
 		self.host = TvSubtitles.url
     
 	def _get_episode_urls(self, show, season, episode, langs):

@@ -32,7 +32,7 @@ from SubDivX import SubDivX
 
 # Don't want to be included
 #from Addic7ed import Addic7ed
-#from TvSubtitles import TvSubtitles
+from TvSubtitles import TvSubtitles
 
 # API not working
 #from Podnapisi2 import Podnapisi

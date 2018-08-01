@@ -36,7 +36,7 @@ class SubtitleDB(object):
         if revertlangs:
             self.revertlangs = revertlangs
             self.langs = dict(map(lambda item: (item[1],item[0]), self.revertlangs.items()))
-        self.tvshowRegex = re.compile('(?P<show>.*)S(?P<season>[0-9]{2})E(?P<episode>[0-9]{2}).(?P<teams>.*)', re.IGNORECASE)
+        self.tvshowRegex = re.compile('(?P<show>.*)[\. _-]*S(?P<season>[0-9]{2})E(?P<episode>[0-9]{2}).(?P<teams>.*)', re.IGNORECASE)
         self.tvshowRegex2 = re.compile('(?P<show>.*).(?P<season>[0-9]{1,2})x(?P<episode>[0-9]{1,2}).(?P<teams>.*)', re.IGNORECASE)
         self.movieRegex = re.compile('(?P<movie>.*)[\.|\[|\(| ]{1}(?P<year>(?:(?:19|20)[0-9]{2}))(?P<teams>.*)', re.IGNORECASE)
 
@@ -165,20 +165,29 @@ class SubtitleDB(object):
         filename = unicode(self.getFileName(filename).lower())
         matches_tvshow = self.tvshowRegex.match(filename)
         if matches_tvshow: # It looks like a tv show
+            log.debug("tvshowRegex matches")
             (tvshow, season, episode, teams) = matches_tvshow.groups()
             tvshow = tvshow.replace(".", " ").strip()
+            logging.debug("last char " + tvshow[-1])
+            if tvshow[-1] in ("-","_"):
+                tvshow = tvshow[0:-1]
+                
             teams = teams.split('.')
             return {'type' : 'tvshow', 'name' : tvshow.strip(), 'season' : int(season), 'episode' : int(episode), 'teams' : teams}
         else:
             matches_tvshow = self.tvshowRegex2.match(filename)
             if matches_tvshow:
+                log.debug("tvshowRegex2 matches")
                 (tvshow, season, episode, teams) = matches_tvshow.groups()
                 tvshow = tvshow.replace(".", " ").strip()
+                if tvshow[-1] in ("-","_"):
+                    tvshow = tvshow[0:-1]
                 teams = teams.split('.')
                 return {'type' : 'tvshow', 'name' : tvshow.strip(), 'season' : int(season), 'episode' : int(episode), 'teams' : teams}
             else:
                 matches_movie = self.movieRegex.match(filename)
                 if matches_movie:
+                    log.debug("movieRegex matches")
                     (movie, year, teams) = matches_movie.groups()
                     teams = teams.split('.')
                     part = None

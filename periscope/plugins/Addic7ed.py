@@ -57,7 +57,7 @@ class Addic7ed(SubtitleDatabase.SubtitleDB):
 	site_name = "Addic7ed"
 
 	def __init__(self, config, cache_folder_path):
-		super(Addic7ed, self).__init__(langs=None,config=config,revertlangs=LANGUAGES)
+		super(Addic7ed, self).__init__(langs=None,config=config,cache_folder_path=cache_folder_path,revertlangs=LANGUAGES)
 		#http://www.addic7ed.com/serie/Smallville/9/11/Absolute_Justice
 		self.host = "http://www.addic7ed.com"
 		self.release_pattern = re.compile(" \nVersion (.+), ([0-9]+).([0-9])+ MBs")

@@ -29,7 +29,7 @@ USER_AGENT = 'Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.9.1.3)'
 
 class SubtitleDB(object):
     ''' Base (kind of abstract) class that represent a SubtitleDB, usually a website. Should be rewritten using abc module in Python 2.6/3K'''
-    def __init__(self, langs, config, revertlangs = None):
+    def __init__(self, langs, config, cache_folder_path = None, revertlangs = None):
         if langs:
             self.langs = langs
             self.revertlangs = dict(map(lambda item: (item[1],item[0]), self.langs.items()))
@@ -47,7 +47,13 @@ class SubtitleDB(object):
             
         except NoSectionError:
             self.pluginConfig = dict()
-        
+            config.add_section(baseClassName)
+            if cache_folder_path:
+                config_file = os.path.join(cache_folder_path, "config")
+                configfile = open(config_file, "w")
+                config.write(configfile)
+                configfile.close()
+            
     def searchInThread(self, queue, filename, langs):
         ''' search subtitles with the given filename for the given languages'''
         try:

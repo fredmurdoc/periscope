@@ -37,7 +37,7 @@ class SubDivX(SubtitleDatabase.SubtitleDB):
     site_name = "SubDivX"
 
     def __init__(self, config, cache_folder_path):
-        super(SubDivX, self).__init__(LANGUAGES,config=config)
+        super(SubDivX, self).__init__(LANGUAGES,config=config,cache_folder_path=cache_folder_path)
         self.api_base_url = 'http://www.subdivx.com/index.php'
 
     def process(self, filepath, langs):

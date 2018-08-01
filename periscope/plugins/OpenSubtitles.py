@@ -82,9 +82,20 @@ class OpenSubtitles(SubtitleDatabase.SubtitleDB):
     site_name = "OpenSubtitles"
     
     def __init__(self, config, cache_folder_path):
-        super(OpenSubtitles, self).__init__(OS_LANGS,config=config)
+        super(OpenSubtitles, self).__init__(OS_LANGS,config=config, cache_folder_path=cache_folder_path)
         self.server_url = 'http://api.opensubtitles.org/xml-rpc'
         self.revertlangs = dict(map(lambda item: (item[1],item[0]), self.langs.items()))
+        self.login = self.pluginConfig.get("username")
+        self.password = self.pluginConfig.get("password")
+        self.userAgent = self.pluginConfig.get("useragent")
+        if not self.login : config.set("OpenSubtitles", "username", "")
+        if not self.password : config.set("OpenSubtitles", "password", "")
+        if not self.userAgent : config.set("OpenSubtitles", "useragent", "")
+        
+        config_file = os.path.join(cache_folder_path, "config")
+        configfile = open(config_file, "w")
+        config.write(configfile)
+        configfile.close()
         
     def process(self, filepath, langs):
         ''' main method to call on the plugin, pass the filename and the wished 
@@ -133,17 +144,17 @@ class OpenSubtitles(SubtitleDatabase.SubtitleDB):
             log.debug(search['query'])
             
         #Login
-        login = self.pluginConfig.get("username")
-        password = self.pluginConfig.get("password")
-        userAgent = self.pluginConfig.get("useragent")
-
+        log.debug("login %s password %s userAgent %s" % (self.login, self.password, self.userAgent))
         self.server = xmlrpclib.Server(self.server_url)
         socket.setdefaulttimeout(10)
         try:
-            log_result = self.server.LogIn(login,password,"eng", userAgent)
+            log.debug("try to login to Open subtitles")
+            log_result = self.server.LogIn(self.login,self.password,"eng", self.userAgent)
             log.debug(log_result)
             token = log_result["token"]
+            log.debug("logged to Open subtitles")
         except Exception as e:
+            log.error(str(e))
             log.error("Open subtitles could not be contacted for login")
             token = None
             socket.setdefaulttimeout(None)

@@ -236,6 +236,7 @@ showNum = {
 "ultimate force":194,
 "unhitched":157,
 "veronica mars":22,
+"vikings":1265,
 "weeds":73,
 "will & grace":172,
 "without a trace":105,
@@ -253,7 +254,7 @@ class TvSubtitles(SubtitleDatabase.SubtitleDB):
 	URL_SHOW_PATTERN = "http://www.tvsubtitles.net/tvshow-%s.html"
 	URL_SEASON_PATTERN = "http://www.tvsubtitles.net/tvshow-%s-%d.html"
 
-	def __init__(self):
+	def __init__(self, config, config_dir_path):
 		super(TvSubtitles, self).__init__({"en":'en', "fr":'fr'},config=config)## TODO ??
 		self.host = TvSubtitles.url
     
@@ -287,7 +288,7 @@ class TvSubtitles(SubtitleDatabase.SubtitleDB):
 		if not showId:
 			return []
 		show_url = self.URL_SEASON_PATTERN % (showId, season)
-		logging.debug("Show url: %s" % show_url)
+		logging.info("Show url: %s" % show_url)
 		page = urllib.urlopen(show_url)
 		content = page.read()
 		content = content.replace("SCR'+'IPT", "script")
@@ -296,9 +297,12 @@ class TvSubtitles(SubtitleDatabase.SubtitleDB):
 		tds = soup.findAll(text=td_content)
 		links = []
 		for td in tds:
+                        logging.debug("td")
 			imgs =  td.parent.parent.findAll("td")[3].findAll("img")
 			for img in imgs:
+                                logging.debug("img")
 				# If there is an alt, and that alt in langs or you didn't specify a langs
+                                logging.debug(img)
 				if img['alt'] and ((langs and img['alt'] in langs) or (not langs)):
 					url = img.parent['href']
 					lang = img['alt']
@@ -362,11 +366,15 @@ class TvSubtitles(SubtitleDatabase.SubtitleDB):
 		
 
 	def process(self, filename, langs):
-		''' main method to call on the plugin, pass the filename and the wished 
+		''' main method to call on the plugin, pass the filename and the wished
 		languages and it will query TvSubtitles.net '''
 		fname = unicode(self.getFileName(filename).lower())
 		guessedData = self.guessFileData(fname)
-		logging.debug(fname)
+		logging.debug("FileName %s" % (fname))
+                logging.debug("FileData %s" % (guessedData['type']))
+                logging.debug("Name %s" % (guessedData['name']))
+                logging.debug("Season %s" % (guessedData['season']))
+                logging.debug("Episode %s" % (guessedData['episode']))
 		if guessedData['type'] == 'tvshow':
 			subs = self.query(guessedData['name'], guessedData['season'], guessedData['episode'], guessedData['teams'], langs)
 			return subs

@@ -136,6 +136,13 @@ class OpenSubtitles(SubtitleDatabase.SubtitleDB):
         if imdbID: search['imdbid'] = imdbID
         if bytesize: search['moviebytesize'] = str(bytesize)
         if langs: search['sublanguageid'] = ",".join([self.getLanguage(lang) for lang in langs])
+        log.debug("No search term, we'll use the filename")
+        # Let's try to guess what to search:
+        log.debug("add name to query")
+        guessed_data = self.guessFileData(filename)
+        search['query'] = guessed_data['name']
+        log.debug(search['query'])
+
         if len(search) == 0:
             log.debug("No search term, we'll use the filename")
             # Let's try to guess what to search:

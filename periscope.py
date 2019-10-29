@@ -66,7 +66,7 @@ def main():
                 exit()
             options.cache_folder = os.path.join(home, ".config", "periscope")
 
-    
+    logging.debug("create client from cache %s" % options.cache_folder)
     periscope_client = periscope.Periscope(options.cache_folder)
         
     if options.show_active_plugins:
@@ -99,6 +99,7 @@ def main():
         if sub:
             subs.append(sub)
     
+    log.debug("debug is active")
     log.info("*"*50)
     log.info("Downloaded %s subtitles" %len(subs))
     for s in subs:

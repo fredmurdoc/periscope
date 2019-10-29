@@ -24,7 +24,7 @@ import subprocess
 import urllib
 import urllib2
 
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 
 import SubtitleDatabase
 
@@ -33,12 +33,12 @@ LANGUAGES = {"es": "Spanish"}
 
 
 class SousTitresEu(SubtitleDatabase.SubtitleDB):
-    url = "https://www.sous-titres.eu/series"
+    url = "https://www.sous-titres.eu"
     site_name = "www.sous-titres.eu"
-
+    guessedData = None
     def __init__(self, config, cache_folder_path):
-        super(SubDivX, self).__init__(LANGUAGES,config=config,cache_folder_path=cache_folder_path)
-        self.api_base_url = 'http://www.subdivx.com/index.php'
+        super(SousTitresEu, self).__init__(LANGUAGES,config=config,cache_folder_path=cache_folder_path)
+        self.api_base_url = 'https://www.sous-titres.eu/search.html'
 
     def process(self, filepath, langs):
         '''Main method to call on the plugin.
@@ -46,16 +46,14 @@ class SousTitresEu(SubtitleDatabase.SubtitleDB):
         Pass the filename and the wished languages and it will query
         the subtitles source. Only Spanish available.
         '''
-        if 'es' not in langs:
-            return []
 
         fname = unicode(self.getFileName(filepath).lower())
-        guessedData = self.guessFileData(fname)
-        if guessedData['type'] == 'tvshow':
-            subs = self.query(guessedData['name'],
-                              guessedData['season'],
-                              guessedData['episode'],
-                              guessedData['teams'])
+        self.guessedData = self.guessFileData(fname)
+        if self.guessedData['type'] == 'tvshow':
+            subs = self.query(self.guessedData['name'],
+                              self.guessedData['season'],
+                              self.guessedData['episode'],
+                              self.guessedData['teams'])
             return subs
         elif guessedData['type'] == 'movie':
             subs = self.query(guessedData['name'], extra=guessedData['teams'])
@@ -65,31 +63,27 @@ class SousTitresEu(SubtitleDatabase.SubtitleDB):
 
     def _get_result_title(self, result):
         '''Return the title of the result.'''
-        return result.find('a', {'class': 'titulo_menu_izq'}).text
+        rs = result.find('span', {'class': 'smallFilenameSerie'})
+        if rs:
+            return rs.text
+        else:
+            rs = result.find('span', {'class': 'smallFilenameFilm'})
+            if rs:
+                return rs.text
+            else:
+                return None
 
     def _get_result_link(self, result):
         '''Return the absolute link of the result. (not the downloadble file)'''
-        return result.find('a', {'class': 'titulo_menu_izq'}).get('href')
+        return '%s/%s' % (self.url, result.get('href'))
 
     def _get_download_link(self, result_url):
         '''Return the direct link of the subtitle'''
-        content = self.downloadContent(result_url, timeout=5)
-        soup = BeautifulSoup(content)
-        return soup.find('a', {'class': 'link1'}).get('href')
-
-    def _get_result_rating(self, result, extra):
-        if extra is None:
-            extra = []
-        description = result.findNext('div', {'id': 'buscador_detalle_sub'}).text
-        description = description.split('<!--')[0].lower()
-        rating = 0
-        for keyword in extra:
-            if not keyword:
-                continue
-            elif keyword in description:
-                rating += 1
-        return rating
-
+        return result_url
+        
+    def _get_result_lang(self, result):
+        return result.find('img').get('alt')
+    
     def query(self, name, season=None, episode=None, extra=None):
         '''Query on SubDivX and return found subtitles details.'''
         sublinks = []
@@ -99,25 +93,50 @@ class SousTitresEu(SubtitleDatabase.SubtitleDB):
         else:
             query = name
 
-        params = {'buscar': query,
-                  'accion': '5',
-                  'oxdown': '1', }
+        params = {'q': query }
         encoded_params = urllib.urlencode(params)
         query_url = '%s?%s' % (self.api_base_url, encoded_params)
 
-        logging.debug("SubDivX query: %s", query_url)
+        logging.debug("SousTitresEu query: %s", query_url)
 
         content = self.downloadContent(query_url, timeout=5)
         if content is not None:
-            soup = BeautifulSoup(content)
-            for subs in soup('div', {"id": "saisons-content"}):
-                result = {}
-                result["release"] = self._get_result_title(subs)
-                result["lang"] = 'es'
-                result["link"] = self._get_result_link(subs)
-                result["page"] = query_url
-                result["rating"] = self._get_result_rating(subs, extra)
-                sublinks.append(result)
+            logging.debug('analyse content')
+            soup = BeautifulSoup(content, features="lxml")
+            containers = soup.find_all("h3")
+            target_parts = []
+            if containers:
+                logging.debug('fetch containers')
+                logging.debug(containers)
+                for container in containers:
+                    logging.debug("name %s " % container.text)
+                    if name.lower() in container.text.lower():
+                        logging.debug("found  %s !!! " % container.text)
+                        target_parts.append(container.parent)
+            else:
+                logging.warn('no containers to fecth')
+                return None
+            for target_part in target_parts:
+                logging.debug('fetch in element : %s' % target_part)
+                for subs in target_part.find_all('a', {'class': 'subList'}):
+                    logging.debug('found element : %s' % subs)
+                    title =self._get_result_title(subs)
+                    logging.debug("title %s" % title.replace('.', ' '))
+                    matched = False
+                    if season and episode:
+                        logging.debug("search %s with season %s episode %s in %s" % (name, season, episode, title)) 
+                        matched = (str(season) in title) and (str(episode) in title) and (name.lower() in title.replace('.', ' ').lower())
+                    else:
+                        matched = name.lower() in title.replace('.', ' ').lower()
+                    if matched:
+                        logging.debug('match with title  : %s' % title)
+                        result = {}
+                        result["release"] = self._get_result_title(subs)
+                        result["lang"] = self._get_result_lang(subs)
+                        result["link"] = self._get_result_link(subs)
+                        result["page"] = query_url
+                        result["rating"] = None
+                        sublinks.append(result)
         sorted_links = sorted(sublinks, key=lambda k: k['rating'], reverse=True)
         return sorted_links
 
@@ -135,7 +154,7 @@ class SousTitresEu(SubtitleDatabase.SubtitleDB):
 
         if response.url.endswith('.zip'):
             # process as usual
-            return super(SubDivX, self).createFile(subtitle)
+            return super(SousTitresEu, self).createFile(subtitle)
         elif response.url.endswith('.rar'):
             # Rar support based on unrar commandline, download it here:
             # http://www.rarlab.com/rar_add.htm

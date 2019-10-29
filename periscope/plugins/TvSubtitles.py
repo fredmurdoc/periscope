@@ -373,10 +373,11 @@ class TvSubtitles(SubtitleDatabase.SubtitleDB):
 		logging.debug("FileName %s" % (fname))
                 logging.debug("FileData %s" % (guessedData['type']))
                 logging.debug("Name %s" % (guessedData['name']))
-                logging.debug("Season %s" % (guessedData['season']))
-                logging.debug("Episode %s" % (guessedData['episode']))
+                
 		if guessedData['type'] == 'tvshow':
-			subs = self.query(guessedData['name'], guessedData['season'], guessedData['episode'], guessedData['teams'], langs)
+                        logging.debug("Season %s" % (guessedData['season']))
+                        logging.debug("Episode %s" % (guessedData['episode']))
+	                subs = self.query(guessedData['name'], guessedData['season'], guessedData['episode'], guessedData['teams'], langs)
 			return subs
 		else:
 			return []

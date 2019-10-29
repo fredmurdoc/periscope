@@ -80,28 +80,40 @@ class Addic7edTestCase(unittest.TestCase):
             subs = subdb.query(guessedData['name'], guessedData['season'], guessedData['episode'], guessedData['teams'])
             print subs
 
-class OpenSubtitlesTestCase(unittest.TestCase):
+class OpenSubtitlesHashAndBytesTestCase(unittest.TestCase):
     def runTest(self):
         import OpenSubtitles
-        subdb = OpenSubtitles.OpenSubtitles()
+        import ConfigParser
+        logging.warn("Unit test %s" % self.__class__.__name__)
+        config = ConfigParser.SafeConfigParser({"lang": "", "plugins" : "", "lang-in-name": "no" })
+        config.read('/home/fred/.config/periscope/config')
+        subdb = OpenSubtitles.OpenSubtitles(config, '/home/fred/.config/periscope')
         # movie hash if for night watch : http://trac.opensubtitles.org/projects/opensubtitles/wiki/XMLRPC
         results = subdb.query('Night.Watch.2004.CD1.DVDRiP.XViD-FiCO.avi', moviehash="09a2c497663259cb", bytesize="733589504")
         
         assert len(results) > 0, 'No result found for Night.Watch.2004.CD1.DVDRiP.XViD-FiCO.avi by movie hash'
 
-class OpenSubtitlesTestCase(unittest.TestCase):
+class OpenSubtitlesFileTestCase(unittest.TestCase):
     def runTest(self):
         import OpenSubtitles
-        subdb = OpenSubtitles.OpenSubtitles()
+        import ConfigParser
+        logging.warn("Unit test %s" % self.__class__.__name__)
+        config = ConfigParser.SafeConfigParser({"lang": "", "plugins" : "", "lang-in-name": "no" })
+        config.read('/home/fred/.config/periscope/config')
+        subdb = OpenSubtitles.OpenSubtitles(config,  '/home/fred/.config/periscope')
         # movie hash if for night watch : http://trac.opensubtitles.org/projects/opensubtitles/wiki/XMLRPC
-        results = subdb.process('/burn/The.Office.US.S07E08.Viewing.Party.HDTV.XviD-FQM.[VTV].avi', None)
+        results = subdb.process('/home/fred/Vidéos/This.is.Us/S04/This.Is.Us.S04E01.HDTV.x264-SVA[ettv]/This.Is.Us.S04E01.HDTV.x264-SVA[ettv].mkv', ['en'])
         print results
         assert len(results) > 0, 'No result found for Night.Watch.2004.CD1.DVDRiP.XViD-FiCO.avi by movie hash'
 
-class OpenSubtitlesTestCaseFileName(unittest.TestCase):
+class OpenSubtitlesMultiplesFileNamesTestCaseFileName(unittest.TestCase):
     def runTest(self):
         import OpenSubtitles
-        subdb = OpenSubtitles.OpenSubtitles()
+        import ConfigParser
+        logging.warn("Unit test %s" % self.__class__.__name__)
+        config = ConfigParser.SafeConfigParser({"lang": "", "plugins" : "", "lang-in-name": "no" })
+        config.read('/home/fred/.config/periscope/config')
+        subdb = OpenSubtitles.OpenSubtitles(config,  '/home/fred/.config/periscope')
         # movie hash if for night watch : http://trac.opensubtitles.org/projects/opensubtitles/wiki/XMLRPC
         filenames = []
         #filename = 'Dexter.S04E01.HDTV.XviD-NoTV'
@@ -117,6 +129,32 @@ class OpenSubtitlesTestCaseFileName(unittest.TestCase):
                 print "Showing first for unit test::"
                 print results[0]
             assert len(results) > 0, 'No result found for %s' %filename
+'''
+class SousTitresEuFileTestCase(unittest.TestCase):
+    def runTest(self):
+        import SousTitresEu
+        import ConfigParser
+        logging.warn("Unit test %s" % self.__class__.__name__)
+        config = ConfigParser.SafeConfigParser({"lang": "", "plugins" : "", "lang-in-name": "no" })
+        config.read('/home/fred/.config/periscope/config')
+        
+        subdb = SousTitresEu.SousTitresEu(config, '/home/fred/.config/periscope')
+        results = subdb.process('/home/fred/Vidéos/This.is.Us/S04/This.Is.Us.S04E01.HDTV.x264-SVA[ettv]/This.Is.Us.S04E01.HDTV.x264-SVA[ettv].mkv', ['fr'])
+        print results
+        assert len(results) > 0, "No result could be found for Heroes 3X9 and no languages"
+'''
+class SousTitresEuQueryTestCase(unittest.TestCase):
+    def runTest(self):
+        import SousTitresEu
+        import ConfigParser
+        logging.warn("Unit test %s" % self.__class__.__name__)
+        config = ConfigParser.SafeConfigParser({"lang": "", "plugins" : "", "lang-in-name": "no" })
+        config.read('/home/fred/.config/periscope/config')
+        
+        subdb = SousTitresEu.SousTitresEu(config, '/home/fred/.config/periscope')
+        results = subdb.query('This is Us', season=4, episode=1)
+        print results
+        assert len(results) > 0, "No result could be found for This is Us and no languages"
 
 class SubtitleSourceTestCase(unittest.TestCase):
     def runTest(self):
@@ -181,7 +219,7 @@ class Podnapisi2TestCase(unittest.TestCase):
         results = subdb.process("/burn/Entourage.S07E01.Stunted.HDTV.XviD-FQM.avi", None)
         print results
         assert len(results) > 5, "Not enough result could be found for The.Office.US.S06E01.HDTV.XviD-2HD and no languages (expected 6)"
-'''
+
 class PodnapisiTestCase(unittest.TestCase):
     def runTest(self):
         import Podnapisi
@@ -194,7 +232,7 @@ class PodnapisiTestCase(unittest.TestCase):
         results[0]["filename"] = "/tmp/testPodnapisi.avi"
         subdb.createFile(results[0])
         #TODO Check that /tmp/testPodnapisi.srt exists
-'''
+
 class PodnapisiTestCaseMultiPart(unittest.TestCase):
     def runTest(self):
         import Podnapisi

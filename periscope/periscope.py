@@ -46,6 +46,7 @@ class Periscope:
     ''' Main Periscope class'''
 
     def __init__(self, cache_folder=None):
+        logging.debug("init")
         self.config = ConfigParser.SafeConfigParser({"lang": "", "plugins" : "", "lang-in-name": "no" })
         self.config_file = os.path.join(cache_folder, "config")
         self.cache_path = cache_folder
@@ -67,6 +68,7 @@ class Periscope:
         self._preferedLanguages = None
 
     def get_preferedLanguages(self):
+        logging.debug("get_preferedLanguages")
         ''' Get the prefered language from the config file '''
         configLang = self.config.get("DEFAULT", "lang")
         log.info("lang read from config: " + configLang)
@@ -86,6 +88,7 @@ class Periscope:
         configfile.close()
 
     def get_preferedPlugins(self):
+        logging.debug("get_preferedPlugins")
         ''' Get the prefered plugins from the config file '''
         configPlugins = self.config.get("DEFAULT", "plugins")
         if not configPlugins or configPlugins.strip() == "":
@@ -128,6 +131,7 @@ class Periscope:
         self.set_preferedPlugins(self.pluginNames)
 
     def activatePlugin(self, pluginName):
+        logging.debug("activatePlugin %s" % pluginName)
         ''' Activate a plugin '''
         if pluginName not in self.listExistingPlugins():
             raise ImportError("No plugin with the name %s exists" %pluginName)
